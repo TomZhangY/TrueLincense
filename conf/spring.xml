@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>./conf/saveDB.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="requestLicense" class="cn.melina.license.create.imp.CreateLicense" >
+		<property name="uniqueIdentify" ref="uniqueIdentify"/>
+		<property name="licenseParameter" ref="licenseParameter"/>
+	</bean>
+	
+	<bean id="licenseParameter" class="cn.melina.license.create.imp.LicenseParameter" >
+		<property name="privatealias" value="${License.PRIVATEALIAS}"/>
+		<property name="keyPwd" value="${License.KEYPWD}"/>
+		<property name="storePwd" value="${License.STOREPWD}"/>
+		<property name="subject" value="${License.SUBJECT}"/>
+		<property name="licPath" value="${License.licPath}"/>
+		<property name="priPath" value="${License.priPath}"/>
+	</bean>
+	
+	<bean id="uniqueIdentify" class="license.identify.imp.MacIdentify">
+	</bean>
+	
+	<bean id="dataSourceServer" class="org.tap.server.datasource.DataSourceServer">
+		<constructor-arg ref="IDataSource" />
+	</bean>
+	
+	<bean id="IDataSource" class="org.tap.server.datasource.c3p0impl.C3P0DataSource">
+		<constructor-arg ref="DataSource" />
+	</bean>
+	
+	<bean id="DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${DataSource.driverClass}" />
+		<property name="jdbcUrl" value="${DataSource.jdbcUrl}" />
+		<property name="user" value="${DataSource.user}" />
+		<property name="password" value="${DataSource.password}" />
+		<!--初始化时获取的连接数，取值应在minPoolSize与maxPoolSize之间。Default: 3 -->
+		<property name="initialPoolSize" value="1" />
+		<!--连接池中保留的最小连接数。 -->
+		<property name="minPoolSize" value="2" />
+		<!--连接池中保留的最大连接数。Default: 15 -->
+		<property name="maxPoolSize" value="10" />
+		<!--最大空闲时间,60秒内未使用则连接被丢弃。若为0则永不丢弃。Default: 0 -->
+		<property name="maxIdleTime" value="60" />
+		<!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 -->
+		<property name="acquireIncrement" value="5" />
+		<!--每60秒检查所有连接池中的空闲连接。Default: 0 -->
+		<property name="idleConnectionTestPeriod" value="60" />
+	</bean>
+</beans>

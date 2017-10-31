@@ -1,10 +1,9 @@
-package cn.melina.license;
+package cn.melina.license.create;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,6 +11,8 @@ import java.util.Properties;
 import java.util.prefs.Preferences;
 
 import javax.security.auth.x500.X500Principal;
+
+import org.apache.log4j.Logger;
 
 import de.schlichtherle.license.CipherParam;
 import de.schlichtherle.license.DefaultCipherParam;
@@ -27,6 +28,18 @@ import de.schlichtherle.license.LicenseParam;
  * @author melina
  */
 public class CreateLicense {
+	private static Logger logger = Logger.getLogger(CreateLicense.class);
+	
+	private IUniqueIdentify uniqueIdentify;
+	
+	public IUniqueIdentify getUniqueIdentify() {
+		return uniqueIdentify;
+	}
+
+	public void setUniqueIdentify(IUniqueIdentify uniqueIdentify) {
+		this.uniqueIdentify = uniqueIdentify;
+	}
+	
 	//common param
 	private static String PRIVATEALIAS = "";
 	private static String KEYPWD = "";
@@ -46,14 +59,13 @@ public class CreateLicense {
 	private final static X500Principal DEFAULTHOLDERANDISSUER = new X500Principal(
 			"CN=Duke、OU=JavaSoft、O=Sun Microsystems、C=US");
 	
-	public void setParam(String propertiesPath) {
+	public void setParam(String propertiesPath,License license) {
 		// 获取参数
 		Properties prop = new Properties();
-		InputStream in = getClass().getResourceAsStream(propertiesPath);
 		try {
+			InputStream in = new FileInputStream(propertiesPath);
 			prop.load(in);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		PRIVATEALIAS = prop.getProperty("PRIVATEALIAS");
@@ -64,9 +76,9 @@ public class CreateLicense {
 		licPath = prop.getProperty("licPath");
 		priPath = prop.getProperty("priPath");
 		//license content
-		issuedTime = prop.getProperty("issuedTime");
-		notBefore = prop.getProperty("notBefore");
-		notAfter = prop.getProperty("notAfter");
+		issuedTime = license.getActiveDate();
+		notBefore = license.getActiveDate();
+		notAfter = license.getExpireDate();
 		consumerType = prop.getProperty("consumerType");
 		consumerAmount = Integer.valueOf(prop.getProperty("consumerAmount"));
 		info = prop.getProperty("info");
@@ -103,7 +115,7 @@ public class CreateLicense {
 	}
 
 	// 从外部表单拿到证书的内容
-		public final static LicenseContent createLicenseContent() {
+		public final LicenseContent createLicenseContent() {
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 			LicenseContent content = null;
 			content = new LicenseContent();
@@ -122,29 +134,7 @@ public class CreateLicense {
 			content.setConsumerAmount(consumerAmount);
 			content.setInfo(info);
 			// 扩展
-			content.setExtra(macStr());
+			content.setExtra(uniqueIdentify.UniqueCode());
 			return content;
-		}
-		
-		private static String macStr(){
-			try {
-				InetAddress inetAddress = InetAddress.getLocalHost();
-				byte[] mac = NetworkInterface.getByInetAddress(inetAddress)
-				          .getHardwareAddress();
-				 StringBuilder sb = new StringBuilder();
-			      for (int i = 0; i < mac.length; i++) {
-			        if (i != 0) {
-			          sb.append("-");
-			        }
-			        // mac[i] & 0xFF 是为了把byte转化为正整数
-			        String s = Integer.toHexString(mac[i] & 0xFF);
-			        sb.append(s.length() == 1 ? 0 + s : s);
-			      }
-			     String  macAddress = sb.toString().trim().toUpperCase();
-				return macAddress;
-			} catch (Exception e) {
-				e.printStackTrace();
-				return "";
-			}
 		}
 }

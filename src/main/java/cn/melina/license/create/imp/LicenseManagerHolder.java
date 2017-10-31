@@ -1,9 +1,9 @@
-package cn.melina.license;
+package cn.melina.license.create.imp;
 import de.schlichtherle.license.LicenseManager;
 import de.schlichtherle.license.LicenseParam;
 
 /**
- * LicenseManagerÈİÆ÷Àà
+ * LicenseManagerï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  * @author melina
  */
 public class LicenseManagerHolder {

@@ -1,4 +1,4 @@
-package cn.melina.license;
+package cn.melina.license.create;
 
 import java.util.Calendar;
 import java.util.Date;
